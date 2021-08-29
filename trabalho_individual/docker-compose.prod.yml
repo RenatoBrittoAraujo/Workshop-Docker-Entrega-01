@@ -1,0 +1,18 @@
+version: "3.7"
+
+services:
+  chat-app:
+    build:
+      target: production
+
+  api-gateway:
+    build:
+      target: production
+
+  users-service:
+    build:
+      target: production
+
+  chat-service:
+    build:
+      target: production

@@ -1,0 +1,81 @@
+version: "3.7"
+
+services:
+  chat-app:
+    build:
+      context: ./chat-app
+      target: development
+    command: yarn watch
+    depends_on:
+      - api-gateway
+    ports:
+      - 7001:7001
+    networks:
+      - external
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+      target: development
+    command: yarn watch
+    depends_on:
+      - users-service
+      - chat-service
+    ports:
+      - 7000:7000
+    networks:
+      - internal
+      - external
+
+  users-service:
+    build:
+      context: ./users-service
+      target: development
+    command: yarn watch
+    ports:
+      - 7101:7101
+    depends_on:
+      - mysql-db
+    networks:
+      - internal
+
+  chat-service:
+    build:
+      context: ./chat-service
+      target: development
+    command: yarn watch
+    ports:
+      - 7100:7100
+    depends_on:
+      - mysql-db
+    networks:
+      - internal
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      - ./phpmyadmin/config.user.inc.php:/etc/phpmyadmin/config.user.inc.php
+    depends_on:
+      - mysql-db
+    networks:
+      - internal
+    ports:
+      - 7300:80
+
+  mysql-db:
+    image: mysql:5.7.20
+    volumes:
+      - ./.ignore:/var/lib/mysql
+    networks:
+      - internal
+    ports:
+      - 7200:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=db
+
+networks:
+  internal:
+    name: internal
+  external:
+    name: external
